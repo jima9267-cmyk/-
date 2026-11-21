@@ -1,0 +1,1058 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문학과 영상 | AI 연출 피드백 & 촬영 기법 비교 스튜디오</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Pretendard Font -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+        /* 뷰파인더 그리드 및 애니메이션 효과 */
+        .viewfinder-grid {
+            background-image: 
+                linear-gradient(to right, rgba(255,255,255,0.15) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 33.33% 33.33%;
+        }
+        @keyframes pulse-rec {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        .rec-dot {
+            animation: pulse-rec 1.5s infinite;
+        }
+        /* 카메라 무빙 시뮬레이션 애니메이션 */
+        @keyframes move-pan {
+            0%, 100% { transform: translateX(-8%); }
+            50% { transform: translateX(8%); }
+        }
+        @keyframes move-zoom-in {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+        }
+        @keyframes move-handheld {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-2px, 3px) rotate(-0.8deg); }
+            50% { transform: translate(3px, -2px) rotate(0.7deg); }
+            75% { transform: translate(-2px, -2px) rotate(-0.5deg); }
+        }
+        .anim-pan { animation: move-pan 5s ease-in-out infinite; }
+        .anim-zoom { animation: move-zoom-in 5s ease-in-out infinite; }
+        .anim-handheld { animation: move-handheld 1.2s ease-in-out infinite; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- 상단 헤더 -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-500 p-2 rounded-xl shadow-inner">
+                    <i data-lucide="clapperboard" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold tracking-wider uppercase bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded-md border border-indigo-400/30">고2 문학과 영상</span>
+                        <span class="text-xs text-slate-400">일상이 작품이 되는 시간</span>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight mt-0.5">내 삶의 한 장면 · 연출 피드백 스튜디오</h1>
+                </div>
+            </div>
+
+            <!-- 탭 전환 네비게이션 -->
+            <nav class="flex bg-slate-800 p-1 rounded-xl border border-slate-700 self-start sm:self-auto">
+                <button id="tab-btn-1" onclick="switchTab(1)" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>1. 연출 계획 피드백</span>
+                </button>
+                <button id="tab-btn-2" onclick="switchTab(2)" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-300 hover:text-white">
+                    <i data-lucide="sliders" class="w-4 h-4"></i>
+                    <span>2. 촬영 기법 비교 체험</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 sm:py-8">
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: 장면 연출 계획 입력 및 AI 피드백 진단             -->
+        <!-- ========================================================= -->
+        <section id="tab-content-1" class="space-y-6">
+            <!-- 안내 배너 -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="bg-amber-100 text-amber-700 p-2.5 rounded-xl shrink-0 mt-0.5">
+                        <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-base">작성한 장면 계획서(8~10초 분량)를 점검해 보세요!</h2>
+                        <p class="text-sm text-slate-600 mt-0.5 leading-relaxed">
+                            AI는 정답을 대신 써주지 않습니다. 여러분이 고른 <strong>숏 크기·앵글·카메라 움직임</strong>이 <strong>장면의 의도</strong>와 잘 맞물리는지 날카롭게 짚어주고, 선택할 수 있는 대안을 제안합니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2 shrink-0 w-full md:w-auto justify-end">
+                    <button onclick="loadSample('good')" class="text-xs font-medium bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-lg transition border border-slate-200">
+                        예시 불러오기 (방 너머의 온기)
+                    </button>
+                    <button onclick="loadSample('mismatch')" class="text-xs font-medium bg-rose-50 hover:bg-rose-100 text-rose-700 px-3 py-2 rounded-lg transition border border-rose-200">
+                        기법 불일치 예시 체험
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- 왼쪽: 학생 입력 폼 (5 cols) -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+                            <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                                <i data-lucide="file-edit" class="w-4 h-4 text-indigo-600"></i>
+                                나의 장면 계획 입력
+                            </h3>
+                            <button onclick="clearForm()" class="text-xs text-slate-400 hover:text-slate-600">초기화</button>
+                        </div>
+
+                        <!-- 1. 구현 의도 / 정서 -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                ① 창작 목적 및 장면 구현 의도 <span class="text-rose-500">*</span>
+                            </label>
+                            <p class="text-xs text-slate-500 mb-1.5">관객이 이 장면에서 무엇을 느끼고 깨닫게 하고 싶은가요?</p>
+                            <textarea id="input-intent" rows="2" placeholder="예: 본가를 떠나 독립한 뒤, 혼자 있는 방의 차가운 적막함과 외로움을 관객이 고스란히 느끼게 하고 싶다." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"></textarea>
+                        </div>
+
+                        <!-- 2. 장면 내용 및 화면 묘사 -->
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">
+                                ② 장면 내용 및 화면·음향 묘사 (8~10초) <span class="text-rose-500">*</span>
+                            </label>
+                            <p class="text-xs text-slate-500 mb-1.5">인물의 행동, 배경, 조명/색감, 내레이션이나 소리를 적어주세요.</p>
+                            <textarea id="input-scene" rows="4" placeholder="예: 밤이 된 새 자취방. 창밖으로 차가운 도시 불빛이 보이고, 주인공이 침대 끝에 우두커니 앉아 있다. 분위기가 많이 슬프고 외로워 보인다. 내레이션: '외로움이라는 감정을 잘 모른다고 생각하며 살아왔다.'" class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"></textarea>
+                        </div>
+
+                        <!-- 3. 선택한 매체 표현 기법 -->
+                        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-3">
+                            <label class="block text-sm font-semibold text-slate-800">
+                                ③ 선택한 매체 표현 기법
+                            </label>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                                <div>
+                                    <span class="block text-xs font-medium text-slate-500 mb-1">숏 크기</span>
+                                    <select id="select-shot" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="익스트림 클로즈업(ECU)">익스트림 클로즈업(ECU)</option>
+                                        <option value="클로즈업(CU)">클로즈업(CU)</option>
+                                        <option value="바스트 숏(BS)">바스트 숏(BS)</option>
+                                        <option value="미디엄 숏(MS)" selected>미디엄 숏(MS)</option>
+                                        <option value="풀 숏(FS)">풀 숏(FS)</option>
+                                        <option value="와이드/익스트림 롱 숏(ELS)">와이드/롱 숏(LS)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block text-xs font-medium text-slate-500 mb-1">카메라 앵글</span>
+                                    <select id="select-angle" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="아이 레벨(눈높이)" selected>아이 레벨(눈높이)</option>
+                                        <option value="하이 앵글(부감)">하이 앵글(위에서 아래)</option>
+                                        <option value="로우 앵글(앙각)">로우 앵글(아래에서 위)</option>
+                                        <option value="더치 앵글(기울임)">더치 앵글(기울임)</option>
+                                        <option value="오버 더 숄더(어깨너머)">오버 더 숄더(어깨너머)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block text-xs font-medium text-slate-500 mb-1">카메라 움직임</span>
+                                    <select id="select-movement" class="w-full rounded-lg border border-slate-300 bg-white px-2.5 py-2 text-xs font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                        <option value="픽스(고정 숏)" selected>픽스(고정 숏)</option>
+                                        <option value="줌 인 / 달리 인">줌 인 / 달리 인</option>
+                                        <option value="줌 아웃 / 달리 아웃">줌 아웃 / 달리 아웃</option>
+                                        <option value="패닝(좌우 회전) / 틸팅">패닝 / 틸팅</option>
+                                        <option value="트래킹(인물 추적)">트래킹(인물 추적)</option>
+                                        <option value="핸드헬드(흔들림)">핸드헬드(흔들림)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <span class="block text-xs font-medium text-slate-500 mb-1">추가 기법 및 연출 메모 (조명, 슬로우 모션, 편집 전환 등)</span>
+                                <input id="input-tech-extra" type="text" placeholder="예: 차가운 푸른색 조명, 슬로우 모션, 페이드 아웃" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            </div>
+                        </div>
+
+                        <!-- 분석 실행 버튼 -->
+                        <button id="analyze-btn" onclick="requestFeedback()" class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold py-3.5 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer">
+                            <i data-lucide="wand-2" class="w-5 h-5"></i>
+                            <span>연출 효과성 피드백 받기</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 오른쪽: AI 피드백 결과 리포트 (7 cols) -->
+                <div class="lg:col-span-7">
+                    <!-- 초기 대기 상태 -->
+                    <div id="feedback-empty" class="bg-white border-2 border-dashed border-slate-200 rounded-2xl p-8 h-full min-h-[420px] flex flex-col items-center justify-center text-center">
+                        <div class="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mb-4">
+                            <i data-lucide="film" class="w-8 h-8"></i>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800">아직 분석된 장면이 없습니다</h3>
+                        <p class="text-sm text-slate-500 max-w-md mt-2 leading-relaxed">
+                            왼쪽에 여러분이 구상한 장면의 <strong>의도, 내용, 촬영 기법</strong>을 입력한 뒤 <strong>[연출 효과성 피드백 받기]</strong>를 눌러주세요.<br>
+                            의도와 기법이 잘 맞물리는지 꼼꼼하게 점검해 드립니다!
+                        </p>
+                    </div>
+
+                    <!-- 로딩 상태 -->
+                    <div id="feedback-loading" class="hidden bg-white border border-slate-200 rounded-2xl p-8 h-full min-h-[420px] flex flex-col items-center justify-center text-center">
+                        <div class="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin mb-4"></div>
+                        <h3 class="text-base font-bold text-slate-800">장면 연출의 정합성을 분석하고 있습니다...</h3>
+                        <p class="text-xs text-slate-500 mt-1.5">창작 의도와 숏 크기·앵글·움직임의 어울림을 레드팀 관점에서 점검 중입니다.</p>
+                    </div>
+
+                    <!-- 피드백 결과 출력 영역 -->
+                    <div id="feedback-result" class="hidden space-y-4">
+                        
+                        <!-- 1. 한 줄 총평 -->
+                        <div class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-2xl p-5 shadow-md">
+                            <div class="flex items-center gap-2 text-indigo-100 text-xs font-bold uppercase tracking-wider mb-1.5">
+                                <i data-lucide="message-square-quote" class="w-4 h-4"></i>
+                                <span>한 줄 총평 · 정서와 서사의 맞물림</span>
+                            </div>
+                            <p id="res-summary" class="text-base sm:text-lg font-bold leading-snug"></p>
+                        </div>
+
+                        <!-- 2. 적절성 평가 (긍정 vs 레드팀 허점 점검) -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- 적절한 부분 -->
+                            <div class="bg-emerald-50/70 border border-emerald-200 rounded-2xl p-4 sm:p-5">
+                                <div class="flex items-center gap-2 text-emerald-800 font-bold text-sm mb-2.5">
+                                    <div class="bg-emerald-500 text-white p-1 rounded-lg">
+                                        <i data-lucide="check" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span>적절한 부분 (기법 ↔ 의도 조화)</span>
+                                </div>
+                                <p id="res-strength" class="text-sm text-emerald-950 leading-relaxed"></p>
+                            </div>
+
+                            <!-- 재검토가 필요한 부분 (레드팀 관점) -->
+                            <div class="bg-rose-50/70 border border-rose-200 rounded-2xl p-4 sm:p-5">
+                                <div class="flex items-center gap-2 text-rose-800 font-bold text-sm mb-2.5">
+                                    <div class="bg-rose-500 text-white p-1 rounded-lg">
+                                        <i data-lucide="alert-triangle" class="w-3.5 h-3.5"></i>
+                                    </div>
+                                    <span>재검토 포인트 (레드팀 허점 점검)</span>
+                                </div>
+                                <p id="res-weakness" class="text-sm text-rose-950 leading-relaxed"></p>
+                            </div>
+                        </div>
+
+                        <!-- 3. 장면·표현 디테일 보완 질문 -->
+                        <div class="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 sm:p-5">
+                            <div class="flex items-center gap-2 text-amber-900 font-bold text-sm mb-2">
+                                <i data-lucide="help-circle" class="w-4 h-4 text-amber-600"></i>
+                                <span>장면·표현 디테일 구체화 질문 (추상적 묘사 → 시청각 정보로!)</span>
+                            </div>
+                            <ul id="res-questions" class="space-y-2 text-sm text-amber-950 list-disc list-inside"></ul>
+                        </div>
+
+                        <!-- 4. 개선 제안 (학생이 선택할 수 있는 대안 1, 2) -->
+                        <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-3">
+                            <div class="flex items-center justify-between">
+                                <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                                    <i data-lucide="git-branch" class="w-4 h-4 text-indigo-600"></i>
+                                    <span>선택형 개선 제안 (내가 원하는 연출 방향 고르기)</span>
+                                </h4>
+                                <span class="text-xs text-slate-400">카드를 눌러 적용하거나 비교 탭에서 확인하세요</span>
+                            </div>
+
+                            <div id="res-alternatives" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <!-- JS로 대안 카드 2개 렌더링 -->
+                            </div>
+
+                            <!-- 다음 단계 유도 버튼 -->
+                            <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-slate-100">
+                                <p class="text-xs text-slate-500">대안 기법이 화면에서 어떻게 보일지 직접 비교해 볼까요?</p>
+                                <button onclick="goToCompareWithCurrent()" class="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 cursor-pointer">
+                                    <span>탭 2에서 다른 표현 기법과 비교 체험하기</span>
+                                    <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: 같은 장면, 다른 표현 기법 비교 및 선택 체험 모듈    -->
+        <!-- ========================================================= -->
+        <section id="tab-content-2" class="hidden space-y-6">
+            <!-- 상단 장면 요약 및 프리셋 선택 -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                    <div>
+                        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">비교 체험 시뮬레이터</span>
+                        <h2 class="text-lg font-bold text-slate-800 mt-0.5">같은 장면, 다른 촬영 기법 — 관객의 느낌은 어떻게 달라질까?</h2>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="setComparePreset('isolation')" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 font-medium px-3 py-1.5 rounded-lg border border-slate-200 transition">
+                            예시 장면 A: 텅 빈 자취방의 외로움
+                        </button>
+                        <button onclick="setComparePreset('warmth')" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 font-medium px-3 py-1.5 rounded-lg border border-slate-200 transition">
+                            예시 장면 B: 문틈으로 새어드는 거실 불빛
+                        </button>
+                        <button onclick="setComparePreset('tension')" class="text-xs bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 font-medium px-3 py-1.5 rounded-lg border border-slate-200 transition">
+                            예시 장면 C: 하지 못한 말을 건네기 직전
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 현재 비교 중인 장면 텍스트 -->
+                <div class="mt-4 bg-slate-50 rounded-xl p-3.5 border border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold bg-slate-200 text-slate-700 px-2 py-0.5 rounded">현재 장면</span>
+                            <span id="compare-intent-badge" class="text-xs font-semibold text-indigo-700">의도: 홀로 남겨진 적막함과 고립감 전달</span>
+                        </div>
+                        <p id="compare-scene-text" class="text-sm text-slate-700 font-medium">
+                            밤이 된 새 자취방. 창밖으로 도시 야경이 보이고 주인공이 침대 끝에 우두커니 혼자 앉아 있다.
+                        </p>
+                    </div>
+                    <button onclick="switchTab(1)" class="text-xs text-indigo-600 hover:text-indigo-800 font-semibold shrink-0 underline">
+                        내 장면 수정하러 가기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 좌우 A / B 기법 비교 뷰파인더 -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                <!-- 연출안 A (내 원래 선택 또는 기법 1) -->
+                <div class="bg-white border-2 border-slate-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-slate-800 text-white text-xs font-bold px-3 py-1 rounded-full">연출안 A (기준안)</span>
+                            <span id="label-a-summary" class="text-xs font-semibold text-slate-500">미디엄 숏 · 아이 레벨 · 고정</span>
+                        </div>
+
+                        <!-- 뷰파인더 시각화 창 A -->
+                        <div class="relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-inner">
+                            <div id="viewport-a" class="w-full h-full flex items-center justify-center transition-all duration-500">
+                                <!-- SVG 씬 렌더링 영역 -->
+                            </div>
+                            <!-- 카메라 뷰파인더 UI 오버레이 -->
+                            <div class="absolute inset-0 viewfinder-grid pointer-events-none"></div>
+                            <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-black/50 backdrop-blur-xs px-2 py-0.5 rounded text-[11px] font-mono text-white">
+                                <span class="w-2 h-2 rounded-full bg-red-500 rec-dot"></span>
+                                <span>REC · CAM A</span>
+                            </div>
+                            <div id="badge-a-angle" class="absolute bottom-3 right-3 bg-black/60 px-2 py-0.5 rounded text-[11px] text-slate-200 font-medium">
+                                EYE LEVEL
+                            </div>
+                        </div>
+
+                        <!-- 기법 컨트롤러 A -->
+                        <div class="grid grid-cols-3 gap-2 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1">숏 크기</label>
+                                <select id="comp-a-shot" onchange="updateComparison()" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-1.5 font-medium">
+                                    <option value="ECU">익스트림 클로즈업</option>
+                                    <option value="CU">클로즈업(CU)</option>
+                                    <option value="MS" selected>미디엄 숏(MS)</option>
+                                    <option value="FS">풀 숏(FS)</option>
+                                    <option value="ELS">와이드/롱 숏(LS)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1">카메라 앵글</label>
+                                <select id="comp-a-angle" onchange="updateComparison()" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-1.5 font-medium">
+                                    <option value="EYE" selected>아이 레벨(눈높이)</option>
+                                    <option value="HIGH">하이 앵글(부감)</option>
+                                    <option value="LOW">로우 앵글(앙각)</option>
+                                    <option value="DUTCH">더치 앵글(기울임)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-500 mb-1">카메라 움직임</label>
+                                <select id="comp-a-move" onchange="updateComparison()" class="w-full text-xs bg-white border border-slate-300 rounded-lg p-1.5 font-medium">
+                                    <option value="FIX" selected>픽스(고정)</option>
+                                    <option value="ZOOM">줌 인 / 달리 인</option>
+                                    <option value="PAN">패닝(좌우 이동)</option>
+                                    <option value="HAND">핸드헬드(흔들림)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 연출 효과 해설 A -->
+                        <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-200/70 space-y-1.5">
+                            <div class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                <i data-lucide="eye" class="w-3.5 h-3.5 text-slate-500"></i>
+                                <span>관객에게 전달되는 심리적·서사적 효과</span>
+                            </div>
+                            <p id="effect-a-desc" class="text-xs text-slate-600 leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <button onclick="selectFinalChoice('A')" class="w-full py-2.5 px-4 rounded-xl border-2 border-slate-800 text-slate-800 hover:bg-slate-800 hover:text-white font-bold text-xs transition cursor-pointer">
+                        이 기법 조합(연출안 A)을 내 장면으로 확정하기
+                    </button>
+                </div>
+
+                <!-- 연출안 B (대안 비교) -->
+                <div class="bg-white border-2 border-indigo-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">연출안 B (대안 비교)</span>
+                            <span id="label-b-summary" class="text-xs font-semibold text-indigo-600">와이드 숏 · 하이 앵글 · 줌 인</span>
+                        </div>
+
+                        <!-- 뷰파인더 시각화 창 B -->
+                        <div class="relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden border border-indigo-400/50 shadow-inner">
+                            <div id="viewport-b" class="w-full h-full flex items-center justify-center transition-all duration-500">
+                                <!-- SVG 씬 렌더링 영역 -->
+                            </div>
+                            <!-- 카메라 뷰파인더 UI 오버레이 -->
+                            <div class="absolute inset-0 viewfinder-grid pointer-events-none"></div>
+                            <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-indigo-950/70 backdrop-blur-xs px-2 py-0.5 rounded text-[11px] font-mono text-indigo-200">
+                                <span class="w-2 h-2 rounded-full bg-red-500 rec-dot"></span>
+                                <span>REC · CAM B</span>
+                            </div>
+                            <div id="badge-b-angle" class="absolute bottom-3 right-3 bg-indigo-950/70 px-2 py-0.5 rounded text-[11px] text-indigo-200 font-medium">
+                                HIGH ANGLE
+                            </div>
+                        </div>
+
+                        <!-- 기법 컨트롤러 B -->
+                        <div class="grid grid-cols-3 gap-2 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100">
+                            <div>
+                                <label class="block text-[11px] font-bold text-indigo-900/70 mb-1">숏 크기</label>
+                                <select id="comp-b-shot" onchange="updateComparison()" class="w-full text-xs bg-white border border-indigo-200 rounded-lg p-1.5 font-medium">
+                                    <option value="ECU">익스트림 클로즈업</option>
+                                    <option value="CU">클로즈업(CU)</option>
+                                    <option value="MS">미디엄 숏(MS)</option>
+                                    <option value="FS">풀 숏(FS)</option>
+                                    <option value="ELS" selected>와이드/롱 숏(LS)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-indigo-900/70 mb-1">카메라 앵글</label>
+                                <select id="comp-b-angle" onchange="updateComparison()" class="w-full text-xs bg-white border border-indigo-200 rounded-lg p-1.5 font-medium">
+                                    <option value="EYE">아이 레벨(눈높이)</option>
+                                    <option value="HIGH" selected>하이 앵글(부감)</option>
+                                    <option value="LOW">로우 앵글(앙각)</option>
+                                    <option value="DUTCH">더치 앵글(기울임)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-indigo-900/70 mb-1">카메라 움직임</label>
+                                <select id="comp-b-move" onchange="updateComparison()" class="w-full text-xs bg-white border border-indigo-200 rounded-lg p-1.5 font-medium">
+                                    <option value="FIX">픽스(고정)</option>
+                                    <option value="ZOOM" selected>줌 인 / 달리 인</option>
+                                    <option value="PAN">패닝(좌우 이동)</option>
+                                    <option value="HAND">핸드헬드(흔들림)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 연출 효과 해설 B -->
+                        <div class="bg-indigo-50/50 rounded-xl p-3.5 border border-indigo-100 space-y-1.5">
+                            <div class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+                                <i data-lucide="sparkles" class="w-3.5 h-3.5 text-indigo-600"></i>
+                                <span>관객에게 전달되는 심리적·서사적 효과</span>
+                            </div>
+                            <p id="effect-b-desc" class="text-xs text-indigo-950/80 leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <button onclick="selectFinalChoice('B')" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition cursor-pointer">
+                        이 기법 조합(연출안 B)을 내 장면으로 확정하기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 최종 선택 결과 정리 및 활동지 복사 카드 -->
+            <div id="final-selection-box" class="hidden bg-emerald-900 text-white rounded-2xl p-6 shadow-lg space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5">
+                        <div class="bg-emerald-500 p-2 rounded-xl">
+                            <i data-lucide="check-circle-2" class="w-5 h-5 text-white"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-base">나의 최종 선택 연출안이 정리되었습니다!</h3>
+                            <p class="text-xs text-emerald-200">아래 내용을 복사해 수업 활동지(구글 문서/클래스룸)에 붙여넣으세요.</p>
+                        </div>
+                    </div>
+                    <button onclick="copyFinalText()" class="bg-white text-emerald-950 hover:bg-emerald-50 font-bold text-xs px-4 py-2.5 rounded-xl shadow transition flex items-center justify-center gap-1.5 cursor-pointer">
+                        <i data-lucide="copy" class="w-4 h-4"></i>
+                        <span>활동지 제출용 텍스트 복사</span>
+                    </button>
+                </div>
+                <textarea id="final-export-text" rows="4" readonly class="w-full bg-emerald-950/70 border border-emerald-700 rounded-xl p-3.5 text-xs text-emerald-100 font-mono focus:outline-none"></textarea>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 커스텀 알림 토스트 메시지 (alert() 대체) -->
+    <div id="toast-box" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-sm font-medium">
+            <i data-lucide="info" class="w-4 h-4 text-indigo-400 shrink-0"></i>
+            <span id="toast-msg">알림 메시지</span>
+        </div>
+    </div>
+
+    <script>
+        // Lucide 아이콘 초기화
+        lucide.createIcons();
+
+        // 토스트 메시지 표시 함수 (alert 대신 사용)
+        function showToast(message) {
+            const toast = document.getElementById('toast-box');
+            const msgEl = document.getElementById('toast-msg');
+            msgEl.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3200);
+        }
+
+        // 탭 전환 로직
+        function switchTab(tabIndex) {
+            const tab1 = document.getElementById('tab-content-1');
+            const tab2 = document.getElementById('tab-content-2');
+            const btn1 = document.getElementById('tab-btn-1');
+            const btn2 = document.getElementById('tab-btn-2');
+
+            if (tabIndex === 1) {
+                tab1.classList.remove('hidden');
+                tab2.classList.add('hidden');
+                btn1.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm";
+                btn2.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-300 hover:text-white";
+            } else {
+                tab1.classList.add('hidden');
+                tab2.classList.remove('hidden');
+                btn2.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm";
+                btn1.className = "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-300 hover:text-white";
+                updateComparison();
+            }
+        }
+
+        // 예시 데이터 불러오기 (수업 활동지 '방 너머의 온기' 기반)
+        function loadSample(type) {
+            if (type === 'good') {
+                document.getElementById('input-intent').value = "본가를 떠나 독립한 뒤 혼자 있는 고요함과, 과거 가족과 함께 있던 시절의 안온함이 전혀 다른 것이었음을 관객이 깨닫게 하고 싶다.";
+                document.getElementById('input-scene').value = "장면 6(회상): 어두운 내 방 안 바닥 위로, 방문 틈을 통해 거실에서 새어 들어오는 일직선의 따뜻한 황금빛 조명 띠가 길게 비친다. 망설이던 주인공의 손이 천천히 문 손잡이에 닿는다. 내레이션: '본가를 떠나오고 나서야 비로소 알게 되었다. 그 시절 내가 아무렇지 않게 열고 나섰던 문틈의 온기를.'";
+                document.getElementById('select-shot').value = "클로즈업(CU)";
+                document.getElementById('select-angle').value = "아이 레벨(눈높이)";
+                document.getElementById('select-movement').value = "줌 인 / 달리 인";
+                document.getElementById('input-tech-extra').value = "어두운 방과 황금빛 거실 조명의 강한 명암 대비, 문 여는 소리의 잔향";
+                showToast("교사 예시('방 너머의 온기' 장면 6)를 불러왔습니다.");
+            } else {
+                document.getElementById('input-intent').value = "주인공이 낯선 자취방에 홀로 남겨져 느끼는 깊은 내면의 고립감과 슬픔을 관객에게 절절하게 전달하고 싶다.";
+                document.getElementById('input-scene').value = "밤이 된 자취방. 주인공이 침대 끝에 앉아 있다. 분위기가 너무 무겁고 슬퍼 보인다. 내레이션: '외로움이라는 감정을 잘 모른다고 생각하며 살아왔다.'";
+                document.getElementById('select-shot').value = "와이드/익스트림 롱 숏(ELS)";
+                document.getElementById('select-angle').value = "아이 레벨(눈높이)";
+                document.getElementById('select-movement').value = "픽스(고정 숏)";
+                document.getElementById('input-tech-extra').value = "특별한 조명 변화 없음";
+                showToast("기법과 의도가 어긋난 사례를 불러왔습니다. 피드백을 눌러보세요!");
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('input-intent').value = "";
+            document.getElementById('input-scene').value = "";
+            document.getElementById('input-tech-extra').value = "";
+            document.getElementById('feedback-result').classList.add('hidden');
+            document.getElementById('feedback-empty').classList.remove('hidden');
+            showToast("입력창을 초기화했습니다.");
+        }
+
+        // 전역 피드백 데이터 저장용
+        let currentAlternatives = [];
+
+        // Gemini API 호출 및 로컬 지능형 폴백 피드백 생성
+        async function requestFeedback() {
+            const intent = document.getElementById('input-intent').value.trim();
+            const scene = document.getElementById('input-scene').value.trim();
+            const shot = document.getElementById('select-shot').value;
+            const angle = document.getElementById('select-angle').value;
+            const movement = document.getElementById('select-movement').value;
+            const extra = document.getElementById('input-tech-extra').value.trim();
+
+            if (!intent || !scene) {
+                showToast("창작 의도와 장면 내용을 먼저 입력해주세요!");
+                return;
+            }
+
+            // UI 상태 전환
+            document.getElementById('feedback-empty').classList.add('hidden');
+            document.getElementById('feedback-result').classList.add('hidden');
+            document.getElementById('feedback-loading').classList.remove('hidden');
+
+            const systemPrompt = `당신은 고등학교 2학년 '문학과 영상' 수업을 지도하는 전문 영상 연출 멘토입니다.
+학생이 작성한 '장면 구현 의도', '장면 묘사', '선택한 촬영 기법(숏 크기, 앵글, 카메라 움직임)'을 분석하여 피드백을 JSON 형식으로 제공하세요.
+
+[핵심 교육 원칙]
+1. 정답을 하나로 단정 짓거나 대신 완성본을 써주지 마세요. 학생이 스스로 판단하고 선택할 수 있도록 유도하세요.
+2. '적절성 평가'에서는 잘 맞물리는 지점을 칭찬하되, 반드시 '레드팀 관점'에서 의도와 기법이 충돌하거나 효과가 반감되는 허점을 날카롭게 지적하세요. (예: 내면의 섬세한 슬픔을 의도했으나 와이드 숏만 써서 표정이 안 보이는 경우, 긴박감을 원했으나 정적인 픽스 숏만 쓴 경우 등)
+3. 장면 묘사에 '슬퍼 보인다', '분위기가 무겁다' 같은 추상적 감정어가 있다면, 카메라에 찍힐 구체적 시각·청각 디테일로 바꾸도록 질문을 던지세요.
+4. 개선 제안은 원래 의도를 살리면서 기법을 보완·교체할 수 있는 서로 다른 2가지 선택지(대안 1, 대안 2)로 제시하세요.`;
+
+            const userQuery = `
+[학생 입력 데이터]
+- 구현 의도: ${intent}
+- 장면 내용 및 묘사: ${scene}
+- 선택한 숏 크기: ${shot}
+- 선택한 카메라 앵글: ${angle}
+- 선택한 카메라 움직임: ${movement}
+- 추가 기법/메모: ${extra || "없음"}
+`;
+
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            oneLineSummary: { type: "STRING", description: "현재 기획이 장면의 정서·서사를 살리는 데 얼마나 맞물려 있는지 한 줄 요약" },
+                            strength: { type: "STRING", description: "선택한 숏 크기·앵글·카메라 움직임이 구현 의도와 잘 맞는 이유" },
+                            weakness: { type: "STRING", description: "레드팀 관점의 허점 점검: 의도와 기법이 어긋나거나 표현력이 약해지는 지점 지적" },
+                            detailQuestions: {
+                                type: "ARRAY",
+                                items: { type: "STRING" },
+                                description: "추상적 묘사를 구체적 시각·청각 정보로 바꾸도록 유도하는 질문 2~3개"
+                            },
+                            alternatives: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        title: { type: "STRING", description: "대안 제목 (예: 대안 1. 정서 몰입형 클로즈업 접근)" },
+                                        shotCode: { type: "STRING", enum: ["ECU", "CU", "MS", "FS", "ELS"] },
+                                        angleCode: { type: "STRING", enum: ["EYE", "HIGH", "LOW", "DUTCH"] },
+                                        moveCode: { type: "STRING", enum: ["FIX", "ZOOM", "PAN", "HAND"] },
+                                        techLabel: { type: "STRING", description: "추천 기법 조합 요약 (예: 클로즈업 + 하이 앵글 + 천천히 줌 인)" },
+                                        reason: { type: "STRING", description: "이 대안을 선택했을 때 관객에게 생기는 연출 효과 설명" }
+                                    },
+                                    required: ["title", "shotCode", "angleCode", "moveCode", "techLabel", "reason"]
+                                }
+                            }
+                        },
+                        required: ["oneLineSummary", "strength", "weakness", "detailQuestions", "alternatives"]
+                    }
+                }
+            };
+
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            try {
+                const response = await fetchWithRetry(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!jsonText) throw new Error("Empty API response");
+                const data = JSON.parse(jsonText);
+                renderFeedback(data);
+            } catch (error) {
+                // 오프라인/로컬 환경(API 키 미설정 등)에서도 수업이 원활히 진행되도록 규칙 기반 분석 엔진 작동
+                const fallbackData = generateLocalAnalysis(intent, scene, shot, angle, movement, extra);
+                renderFeedback(fallbackData);
+            }
+        }
+
+        // 지수 백오프 재시도 함수
+        async function fetchWithRetry(url, options, retries = 2, delay = 1000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const res = await fetch(url, options);
+                    if (res.ok) return res;
+                } catch (e) {}
+                await new Promise(r => setTimeout(r, delay * Math.pow(2, i)));
+            }
+            throw new Error("API unavailable");
+        }
+
+        // 로컬 지능형 규칙 분석기 (GitHub Pages 단독 호스팅 시에도 100% 동작 보장)
+        function generateLocalAnalysis(intent, scene, shot, angle, movement, extra) {
+            const isWide = shot.includes("와이드") || shot.includes("풀");
+            const isClose = shot.includes("클로즈업");
+            const isStatic = movement.includes("픽스");
+            const hasAbstractWords = /(슬퍼|외로워|무겁다|우울|행복|따뜻해 보|긴장|답답)/.test(scene);
+            const wantsInnerEmotion = /(내면|외로움|고립|슬픔|그리움|깨달음|떨림|긴장)/.test(intent);
+
+            let oneLine = `현재 기획은 '${intent.slice(0, 22)}...'라는 의도를 담고 있으나, 선택한 카메라 거리(${shot})와 움직임(${movement})이 정서를 극대화하는지 한 번 더 점검할 필요가 있습니다.`;
+            let strength = `장면의 기본 상황을 관객에게 안정적으로 전달하기 위해 '${shot}'과 '${angle}'을 조합한 점은 서사의 맥락을 이해시키는 데 무리가 없습니다.`;
+            let weakness = "";
+
+            if (wantsInnerEmotion && isWide) {
+                weakness = `[의도-기법 충돌] 내면의 섬세한 감정과 고립감을 전달하겠다고 했으나, '${shot}'만 사용하면 인물이 화면에서 너무 작아져 미세한 표정이나 시선의 흔들림이 관객에게 닿지 않습니다.`;
+            } else if (wantsInnerEmotion && isClose && isStatic) {
+                strength = `인물의 내면 심리에 집중하기 위해 '${shot}'을 선택한 것은 구현 의도와 매우 잘 맞물리는 탁월한 선택입니다.`;
+                weakness = `[단조로움 주의] 클로즈업과 '${movement}'이 계속 이어지면 8~10초 동안 화면이 정체되어 보일 수 있습니다. 인물이 놓인 공간의 공기감이나 빛의 변화를 함께 보여줄 장치가 부족합니다.`;
+            } else if (!isStatic && isWide) {
+                weakness = `[시선 분산 위험] 넓은 화각의 '${shot}'에서 카메라까지 '${movement}'으로 움직이면 관객이 인물의 감정에 집중하기보다 배경에 시선을 빼앗길 수 있습니다.`;
+            } else {
+                weakness = `[정서 증폭의 한계] 현재의 '${shot} + ${angle} + ${movement}' 조합은 상황을 객관적으로 설명하는 데는 좋지만, 관객이 인물의 마음에 깊이 이입하게 만드는 결정적 한 방(시각적 강조)이 다소 평이합니다.`;
+            }
+
+            const questions = [];
+            if (hasAbstractWords) {
+                questions.push("장면 묘사에 쓰인 '슬퍼 보인다/무겁다' 같은 추상적인 느낌을 카메라가 직접 찍을 수 있는 행동(예: 식어버린 컵을 만지작거리는 손, 시선을 떨구는 눈빛)으로 바꾼다면 무엇일까요?");
+            } else {
+                questions.push("이 장면의 8~10초 동안 관객의 시선이 가장 먼저 머물러야 할 '핵심 피사체(손, 눈빛, 빛줄기 등)'는 무엇인가요?");
+            }
+            questions.push("내레이션 외에 이 공간의 분위기를 살려줄 현장음(예: 시계 초침 소리, 멀리서 들리는 차 소리, 방문 닫히는 소리)을 하나 추가한다면 어떤 소리가 어울릴까요?");
+
+            const alternatives = [
+                {
+                    title: "대안 1 · 인물의 내면과 디테일에 밀착하기",
+                    shotCode: "CU",
+                    angleCode: "EYE",
+                    moveCode: "ZOOM",
+                    techLabel: "클로즈업(CU) + 눈높이(아이 레벨) + 천천히 줌 인",
+                    reason: "인물의 표정이나 손끝의 미세한 움직임으로 서서히 다가가며 관객이 인물의 감정에 깊이 이입하도록 만듭니다."
+                },
+                {
+                    title: "대안 2 · 공간 속 고립감과 대비 강조하기",
+                    shotCode: "ELS",
+                    angleCode: "HIGH",
+                    moveCode: "FIX",
+                    techLabel: "와이드 숏(LS) + 하이 앵글(위에서 내려다봄) + 고정",
+                    reason: "넓은 공간 속에서 작아 보이는 인물을 위에서 내려다보는 구도로 담아, 심리적 위축감과 공간의 여백을 극대화합니다."
+                }
+            ];
+
+            return { oneLineSummary: oneLine, strength, weakness, detailQuestions: questions, alternatives };
+        }
+
+        // 피드백 UI 렌더링
+        function renderFeedback(data) {
+            document.getElementById('feedback-loading').classList.add('hidden');
+            document.getElementById('feedback-result').classList.remove('hidden');
+
+            document.getElementById('res-summary').textContent = data.oneLineSummary;
+            document.getElementById('res-strength').textContent = data.strength;
+            document.getElementById('res-weakness').textContent = data.weakness;
+
+            const qList = document.getElementById('res-questions');
+            qList.innerHTML = "";
+            data.detailQuestions.forEach(q => {
+                const li = document.createElement('li');
+                li.textContent = q;
+                qList.appendChild(li);
+            });
+
+            currentAlternatives = data.alternatives || [];
+            const altContainer = document.getElementById('res-alternatives');
+            altContainer.innerHTML = "";
+
+            currentAlternatives.forEach((alt, idx) => {
+                const card = document.createElement('div');
+                card.className = "border border-slate-200 hover:border-indigo-400 bg-slate-50/60 hover:bg-indigo-50/40 rounded-xl p-4 transition flex flex-col justify-between gap-3";
+                card.innerHTML = `
+                    <div class="space-y-1.5">
+                        <div class="text-xs font-bold text-indigo-700">${alt.title}</div>
+                        <div class="inline-block bg-white border border-indigo-200 text-slate-800 text-[11px] font-semibold px-2.5 py-1 rounded-md">
+                            ${alt.techLabel}
+                        </div>
+                        <p class="text-xs text-slate-600 leading-relaxed pt-1">${alt.reason}</p>
+                    </div>
+                    <button onclick="applyAlternativeToCompare(${idx})" class="w-full text-center bg-white hover:bg-indigo-600 text-indigo-700 hover:text-white border border-indigo-300 font-semibold text-xs py-2 rounded-lg transition cursor-pointer">
+                        이 대안으로 탭 2에서 비교하기
+                    </button>
+                `;
+                altContainer.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        // 탭 1의 선택과 대안을 탭 2 비교 화면으로 연동
+        function mapShotToCode(val) {
+            if (val.includes("익스트림 클로즈업")) return "ECU";
+            if (val.includes("클로즈업")) return "CU";
+            if (val.includes("바스트") || val.includes("미디엄")) return "MS";
+            if (val.includes("풀")) return "FS";
+            return "ELS";
+        }
+        function mapAngleToCode(val) {
+            if (val.includes("하이")) return "HIGH";
+            if (val.includes("로우")) return "LOW";
+            if (val.includes("더치")) return "DUTCH";
+            return "EYE";
+        }
+        function mapMoveToCode(val) {
+            if (val.includes("줌") || val.includes("달리")) return "ZOOM";
+            if (val.includes("패닝") || val.includes("틸팅") || val.includes("트래킹")) return "PAN";
+            if (val.includes("핸드헬드")) return "HAND";
+            return "FIX";
+        }
+
+        function goToCompareWithCurrent() {
+            applyAlternativeToCompare(0);
+        }
+
+        function applyAlternativeToCompare(altIdx) {
+            const intent = document.getElementById('input-intent').value.trim();
+            const scene = document.getElementById('input-scene').value.trim();
+            if (intent) document.getElementById('compare-intent-badge').textContent = `내 의도: ${intent}`;
+            if (scene) document.getElementById('compare-scene-text').textContent = scene;
+
+            // A안: 학생의 원래 선택
+            document.getElementById('comp-a-shot').value = mapShotToCode(document.getElementById('select-shot').value);
+            document.getElementById('comp-a-angle').value = mapAngleToCode(document.getElementById('select-angle').value);
+            document.getElementById('comp-a-move').value = mapMoveToCode(document.getElementById('select-movement').value);
+
+            // B안: 선택한 AI 추천 대안
+            if (currentAlternatives[altIdx]) {
+                const alt = currentAlternatives[altIdx];
+                document.getElementById('comp-b-shot').value = alt.shotCode || "CU";
+                document.getElementById('comp-b-angle').value = alt.angleCode || "HIGH";
+                document.getElementById('comp-b-move').value = alt.moveCode || "ZOOM";
+            }
+
+            switchTab(2);
+            showToast("연출안 A(내 선택)와 연출안 B(추천 대안)를 나란히 비교해 보세요!");
+        }
+
+        // =========================================================
+        // TAB 2: 비교 시뮬레이터 로직 & SVG 뷰파인더 렌더링
+        // =========================================================
+        let currentSceneTheme = "isolation"; // isolation | warmth | tension
+
+        function setComparePreset(presetKey) {
+            currentSceneTheme = presetKey;
+            const badge = document.getElementById('compare-intent-badge');
+            const text = document.getElementById('compare-scene-text');
+
+            if (presetKey === 'isolation') {
+                badge.textContent = "의도: 홀로 남겨진 적막함과 고립감 전달";
+                text.textContent = "밤이 된 새 자취방. 창밖으로 차가운 도시 야경이 보이고 주인공이 침대 끝에 우두커니 혼자 앉아 있다.";
+                document.getElementById('comp-a-shot').value = "MS";
+                document.getElementById('comp-a-angle').value = "EYE";
+                document.getElementById('comp-a-move').value = "FIX";
+                document.getElementById('comp-b-shot').value = "ELS";
+                document.getElementById('comp-b-angle').value = "HIGH";
+                document.getElementById('comp-b-move').value = "ZOOM";
+            } else if (presetKey === 'warmth') {
+                badge.textContent = "의도: 문틈으로 새어드는 가족의 온기와 그리움";
+                text.textContent = "어두운 내 방 바닥 위로 방문 틈을 통해 거실의 따뜻한 황금빛 불빛이 일직선으로 새어 들어온다.";
+                document.getElementById('comp-a-shot').value = "FS";
+                document.getElementById('comp-a-angle').value = "EYE";
+                document.getElementById('comp-a-move').value = "PAN";
+                document.getElementById('comp-b-shot').value = "CU";
+                document.getElementById('comp-b-angle').value = "LOW";
+                document.getElementById('comp-b-move').value = "ZOOM";
+            } else if (presetKey === 'tension') {
+                badge.textContent = "의도: 끝내 하지 못한 말을 꺼내기 직전의 떨림과 망설임";
+                text.textContent = "복도 창가 앞, 친구를 불러 세웠지만 입술만 달싹이며 쉽게 말을 꺼내지 못하는 순간.";
+                document.getElementById('comp-a-shot').value = "MS";
+                document.getElementById('comp-a-angle').value = "EYE";
+                document.getElementById('comp-a-move').value = "FIX";
+                document.getElementById('comp-b-shot').value = "ECU";
+                document.getElementById('comp-b-angle').value = "DUTCH";
+                document.getElementById('comp-b-move').value = "HAND";
+            }
+            updateComparison();
+        }
+
+        // 기법 코드 한글 변환 및 효과 해설 생성
+        const shotLabels = {
+            ECU: "익스트림 클로즈업(ECU)",
+            CU: "클로즈업(CU)",
+            MS: "미디엄 숏(MS)",
+            FS: "풀 숏(FS)",
+            ELS: "와이드/롱 숏(LS)"
+        };
+        const angleLabels = {
+            EYE: "아이 레벨(눈높이)",
+            HIGH: "하이 앵글(부감)",
+            LOW: "로우 앵글(앙각)",
+            DUTCH: "더치 앵글(기울임)"
+        };
+        const moveLabels = {
+            FIX: "픽스(고정)",
+            ZOOM: "줌 인/달리 인",
+            PAN: "패닝(좌우 이동)",
+            HAND: "핸드헬드(흔들림)"
+        };
+
+        function getEffectExplanation(shot, angle, move) {
+            const shotEffect = {
+                ECU: "인물의 눈동자나 손끝 등 극히 일부만 화면에 꽉 채워 숨소리조차 들릴 듯한 강렬한 심리적 긴장감과 디테일을 전달합니다.",
+                CU: "얼굴 표정과 감정의 미세한 변화를 포착하여 관객이 인물의 내면에 가장 깊이 공감하고 몰입하게 만듭니다.",
+                MS: "인물의 상반신과 주변 배경을 균형 있게 보여주어 인물의 행동과 대사, 상황을 자연스럽고 객관적으로 전달합니다.",
+                FS: "인물의 전신과 동작을 모두 담아내어 인물이 처한 물리적 위치와 몸짓의 전체적인 분위기를 보여줍니다.",
+                ELS: "광활한 배경 속에 인물을 작게 배치하여 인물의 고독감, 무력감, 또는 공간이 주는 압도적인 분위기를 극대화합니다."
+            }[shot];
+
+            const angleEffect = {
+                EYE: "관객과 인물을 대등한 눈높이에 두어 편안하고 일상적인 시선으로 장면을 받아들이게 합니다.",
+                HIGH: "위에서 아래로 내려다보는 구도로, 인물을 작고 외롭거나 심리적으로 위축된 존재처럼 보이게 만듭니다.",
+                LOW: "아래에서 위로 올려다보아 대상에 웅장함, 희망, 혹은 심리적 압박감을 부여합니다.",
+                DUTCH: "수평선을 의도적으로 기울여 인물의 내적 불안, 혼란, 균형이 깨진 심리 상태를 시각적으로 드러냅니다."
+            }[angle];
+
+            const moveEffect = {
+                FIX: "프레임을 단단히 고정하여 차분함, 정적, 혹은 피할 수 없는 고요한 여운을 남깁니다.",
+                ZOOM: "시선이 피사체로 서서히 빨려 들어가듯 다가가며 감정의 고조와 결정적 깨달음의 순간을 강조합니다.",
+                PAN: "공간을 가로지르며 시선을 이동시켜 배경의 맥락을 훑어주거나 인물의 시선 흐름을 따라갑니다.",
+                HAND: "카메라의 미세한 손떨림을 통해 인물의 불안한 심박수와 현장감, 생생한 긴장감을 전달합니다."
+            }[move];
+
+            return `${shotEffect} 또한 ${angleEffect} 여기에 ${moveEffect}`;
+        }
+
+        // 뷰파인더 내 시각적 프레이밍 SVG 생성기
+        function renderViewportSVG(containerId, shot, angle, move) {
+            const container = document.getElementById(containerId);
+            
+            // 숏 크기에 따른 스케일 및 위치 조정
+            const scaleMap = {
+                ELS: 0.55,
+                FS: 0.85,
+                MS: 1.25,
+                CU: 1.95,
+                ECU: 2.85
+            };
+            const translateYMap = {
+                ELS: "12%",
+                FS: "8%",
+                MS: "16%",
+                CU: "36%",
+                ECU: "52%"
+            };
+
+            // 앵글에 따른 변형
+            let angleTransform = "";
+            if (angle === "HIGH") angleTransform = "rotateX(22deg) translateY(-6%)";
+            if (angle === "LOW") angleTransform = "rotateX(-18deg) translateY(8%)";
+            if (angle === "DUTCH") angleTransform = "rotate(-9deg) scale(1.08)";
+
+            // 움직임 애니메이션 클래스
+            let animClass = "";
+            if (move === "ZOOM") animClass = "anim-zoom";
+            if (move === "PAN") animClass = "anim-pan";
+            if (move === "HAND") animClass = "anim-handheld";
+
+            // 테마별 배경 색감 (차가운 푸른 야경 vs 따뜻한 황금빛 문틈)
+            const isWarm = currentSceneTheme === "warmth";
+            const bgGradient = isWarm 
+                ? "from-amber-950 via-stone-900 to-amber-900/40" 
+                : "from-slate-950 via-indigo-950 to-slate-900";
+            const lightBeam = isWarm
+                ? `<polygon points="180,20 260,20 340,220 100,220" fill="rgba(251, 191, 36, 0.22)" />`
+                : `<rect x="40" y="25" width="90" height="110" rx="4" fill="rgba(56, 189, 248, 0.12)" stroke="rgba(125, 211, 252, 0.25)" stroke-width="1.5"/>
+                   <circle cx="65" cy="55" r="2" fill="#bae6fd" opacity="0.6"/>
+                   <circle cx="95" cy="70" r="1.5" fill="#bae6fd" opacity="0.5"/>
+                   <circle cx="110" cy="48" r="2" fill="#bae6fd" opacity="0.7"/>`;
+
+            const scale = scaleMap[shot];
+            const ty = translateYMap[shot];
+
+            container.innerHTML = `
+                <div class="w-full h-full bg-gradient-to-b ${bgGradient} flex items-center justify-center overflow-hidden">
+                    <div class="w-full h-full flex items-center justify-center ${animClass}" style="transform: ${angleTransform}; transition: transform 0.5s ease;">
+                        <svg viewBox="0 0 400 225" class="w-full h-full" style="transform: scale(${scale}) translateY(${ty}); transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);">
+                            <!-- 방 바닥 / 배경 선 -->
+                            <line x1="0" y1="175" x2="400" y2="175" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+                            ${lightBeam}
+                            
+                            <!-- 인물 실루엣 (머리, 눈, 상반신, 하반신) -->
+                            <g transform="translate(200, 115)">
+                                <!-- 몸통 -->
+                                <path d="M -28 60 C -28 25, 28 25, 28 60 L 22 95 L -22 95 Z" fill="${isWarm ? '#451a03' : '#1e293b'}" stroke="${isWarm ? '#f59e0b' : '#64748b'}" stroke-width="1.5"/>
+                                <!-- 머리 -->
+                                <circle cx="0" cy="0" r="20" fill="${isWarm ? '#78350f' : '#334155'}" stroke="${isWarm ? '#fbbf24' : '#94a3b8'}" stroke-width="1.5"/>
+                                <!-- 시선/표정 포인트 (클로즈업 시 강조) -->
+                                <circle cx="-6" cy="-2" r="2" fill="#f8fafc" opacity="0.85"/>
+                                <circle cx="6" cy="-2" r="2" fill="#f8fafc" opacity="0.85"/>
+                                <path d="M -5 8 Q 0 6 5 8" stroke="#cbd5e1" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 비교 화면 전체 업데이트
+        function updateComparison() {
+            const aShot = document.getElementById('comp-a-shot').value;
+            const aAngle = document.getElementById('comp-a-angle').value;
+            const aMove = document.getElementById('comp-a-move').value;
+
+            const bShot = document.getElementById('comp-b-shot').value;
+            const bAngle = document.getElementById('comp-b-angle').value;
+            const bMove = document.getElementById('comp-b-move').value;
+
+            document.getElementById('label-a-summary').textContent = `${shotLabels[aShot]} · ${angleLabels[aAngle]} · ${moveLabels[aMove]}`;
+            document.getElementById('label-b-summary').textContent = `${shotLabels[bShot]} · ${angleLabels[bAngle]} · ${moveLabels[bMove]}`;
+
+            document.getElementById('badge-a-angle').textContent = `${aShot} / ${aAngle} / ${aMove}`;
+            document.getElementById('badge-b-angle').textContent = `${bShot} / ${bAngle} / ${bMove}`;
+
+            document.getElementById('effect-a-desc').textContent = getEffectExplanation(aShot, aAngle, aMove);
+            document.getElementById('effect-b-desc').textContent = getEffectExplanation(bShot, bAngle, bMove);
+
+            renderViewportSVG('viewport-a', aShot, aAngle, aMove);
+            renderViewportSVG('viewport-b', bShot, bAngle, bMove);
+        }
+
+        // 최종 선택 확정 및 제출용 텍스트 생성
+        function selectFinalChoice(choice) {
+            const shot = document.getElementById(`comp-${choice.toLowerCase()}-shot`).value;
+            const angle = document.getElementById(`comp-${choice.toLowerCase()}-angle`).value;
+            const move = document.getElementById(`comp-${choice.toLowerCase()}-move`).value;
+            const sceneText = document.getElementById('compare-scene-text').textContent.trim();
+            const intentText = document.getElementById('compare-intent-badge').textContent.trim();
+
+            const summary = `[문학과 영상 - 장면 연출 최종 선택안]\n` +
+                `• ${intentText}\n` +
+                `• 장면 내용: ${sceneText}\n` +
+                `• 확정 촬영 기법: ${shotLabels[shot]} + ${angleLabels[angle]} + ${moveLabels[move]}\n` +
+                `• 기법 선택 이유(효과): ${getEffectExplanation(shot, angle, move)}`;
+
+            const box = document.getElementById('final-selection-box');
+            const textarea = document.getElementById('final-export-text');
+            textarea.value = summary;
+            box.classList.remove('hidden');
+            box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            showToast(`연출안 ${choice}이 최종 선택되었습니다!`);
+        }
+
+        // 클립보드 복사 (iFrame 호환 execCommand 사용)
+        function copyFinalText() {
+            const textarea = document.getElementById('final-export-text');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            try {
+                document.execCommand('copy');
+                showToast("활동지 제출용 연출 계획이 클립보드에 복사되었습니다!");
+            } catch (err) {
+                showToast("복사에 실패했습니다. 텍스트를 직접 드래그해 복사해주세요.");
+            }
+        }
+
+        // 초기 렌더링 실행
+        window.onload = function() {
+            updateComparison();
+        };
+    </script>
+</body>
+</html>
