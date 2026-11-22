@@ -144,8 +144,7 @@
                                 ① 창작 목적 및 장면 구현 의도 <span class="text-rose-500">*</span>
                             </label>
                             <p class="text-xs text-slate-500 mb-1.5">관객이 이 장면에서 무엇을 느끼고 깨닫게 하고 싶은가요?</p>
-                            <textarea id="input-intent" rows="3" placeholder="한쪽에 놀이터 입구가 들어온다.
-연출 의도: 주변을 자세히 보지 않고 지나가는 평범한 일상을 보여 주어, 이후 놀이터의 변화를 알아차리는 순간이 자연스럽게 이어지도록 한다." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                            <textarea id="input-intent" rows="3" placeholder="한쪽에 놀이터 입구가 들어온다.&#10;연출 의도: 주변을 자세히 보지 않고 지나가는 평범한 일상을 보여 주어, 이후 놀이터의 변화를 알아차리는 순간이 자연스럽게 이어지도록 한다." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                         </div>
 
                         <div>
@@ -153,8 +152,7 @@
                                 ② 장면 내용 및 매체 표현 기법·음향 묘사 (8~10초) <span class="text-rose-500">*</span>
                             </label>
                             <p class="text-xs text-slate-500 mb-1.5">인물의 행동·배경, 매체 표현 기법(샷 크기·앵글·움직임·조명/색감 등), 음향·내레이션을 포함해 적어주세요.</p>
-                            <textarea id="input-scene" rows="6" placeholder="표현 기법: 주인공의 뒷모습과 길을 담은 풀 샷에서 천천히 따라가는 트래킹 샷을 사용한다. 핸드폰을 쥔 손을 짧게 클로즈업한 뒤 다시 걷는 모습으로 연결한다. 푸른색과 회색을 중심으로 밤의 분위기를 표현한다.
-음향: 일정한 발소리와 멀리서 들리는 차 소리를 작게 깐다. 내레이션은 담담한 목소리로 시작한다." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                            <textarea id="input-scene" rows="6" placeholder="표현 기법: 주인공의 뒷모습과 길을 담은 풀 샷에서 천천히 따라가는 트래킹 샷을 사용한다. 핸드폰을 쥔 손을 짧게 클로즈업한 뒤 다시 걷는 모습으로 연결한다. 푸른색과 회색을 중심으로 밤의 분위기를 표현한다.&#10;음향: 일정한 발소리와 멀리서 들리는 차 소리를 작게 깐다. 내레이션은 담담한 목소리로 시작한다." class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
                         </div>
 
                         <button id="analyze-btn" type="button" onclick="requestFeedback()" class="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-bold py-3.5 px-4 rounded-xl shadow-md transition-all cursor-pointer">
@@ -315,4 +313,443 @@
                 </div>
 
                 <!-- 연출안 B -->
-                <div class="bg-white border-2 border-indigo-200 rounded-2xl p-5 shadow-sm flex flex-
+                <div class="bg-white border-2 border-indigo-200 rounded-2xl p-5 shadow-sm flex flex-col justify-between space-y-4">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between gap-2">
+                            <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full shrink-0">연출안 B (대안 비교)</span>
+                            <span id="label-b-summary" class="text-xs font-semibold text-indigo-600 text-right"></span>
+                        </div>
+
+                        <div class="relative w-full aspect-video bg-slate-900 rounded-xl overflow-hidden border border-indigo-400/50 shadow-inner">
+                            <div id="viewport-b" class="w-full h-full flex items-center justify-center transition-all duration-500"></div>
+                            <div class="absolute inset-0 viewfinder-grid pointer-events-none"></div>
+                            <div class="absolute top-3 left-3 flex items-center gap-1.5 bg-indigo-950/70 px-2 py-0.5 rounded text-[11px] font-mono text-indigo-200">
+                                <span class="w-2 h-2 rounded-full bg-red-500 rec-dot"></span>
+                                <span>REC · CAM B</span>
+                            </div>
+                            <div id="badge-b-angle" class="absolute bottom-3 right-3 bg-indigo-950/70 px-2 py-0.5 rounded text-[11px] text-indigo-200 font-medium">HIGH</div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 bg-indigo-50/60 p-3 rounded-xl border border-indigo-100">
+                            <div>
+                                <label for="comp-b-shot" class="block text-[11px] font-bold text-indigo-900/70 mb-1">숏 크기</label>
+                                <select id="comp-b-shot" onchange="updateComparison()" class="w-full text-xs bg-white border border-indigo-200 rounded-lg p-1.5 font-medium">
+                                    <option value="ECU">익스트림 클로즈업</option>
+                                    <option value="CU">클로즈업(CU)</option>
+                                    <option value="MS">미디엄 숏(MS)</option>
+                                    <option value="FS">풀 숏(FS)</option>
+                                    <option value="ELS" selected>와이드/롱 숏(LS)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="comp-b-angle" class="block text-[11px] font-bold text-indigo-900/70 mb-1">카메라 앵글</label>
+                                <select id="comp-b-angle" onchange="updateComparison()" class="w-full text-xs bg-white border border-indigo-200 rounded-lg p-1.5 font-medium">
+                                    <option value="EYE">아이 레벨(눈높이)</option>
+                                    <option value="HIGH" selected>하이 앵글(부감)</option>
+                                    <option value="LOW">로우 앵글(앙각)</option>
+                                    <option value="DUTCH">더치 앵글(기울임)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="comp-b-move" class="block text-[11px] font-bold text-indigo-900/70 mb-1">카메라 움직임</label>
+                                <select id="comp-b-move" onchange="updateComparison()" class="w-full text-xs bg-white border border-indigo-200 rounded-lg p-1.5 font-medium">
+                                    <option value="FIX">픽스(고정)</option>
+                                    <option value="ZOOM" selected>줌 인 / 달리 인</option>
+                                    <option value="PAN">패닝(좌우 이동)</option>
+                                    <option value="HAND">핸드헬드(흔들림)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bg-indigo-50/50 rounded-xl p-3.5 border border-indigo-100 space-y-1">
+                            <div class="text-xs font-bold text-indigo-900">관객에게 전달되는 심리적·서사적 효과</div>
+                            <p id="effect-b-desc" class="text-xs text-indigo-950/80 leading-relaxed"></p>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="selectFinalChoice('B')" class="w-full py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition cursor-pointer shadow-xs">
+                        이 기법 조합(연출안 B)을 내 장면으로 확정하기
+                    </button>
+                </div>
+            </div>
+
+            <div id="choice-banner" class="hidden bg-emerald-900 text-white rounded-2xl p-4 shadow-md flex flex-col sm:flex-row items-center justify-between gap-3">
+                <p id="choice-banner-text" class="text-sm font-medium"></p>
+                <button type="button" onclick="switchTab(1)" class="text-xs bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-3.5 py-2 rounded-lg transition shrink-0 cursor-pointer">
+                    장면 계획서로 돌아가기
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Google Apps Script 웹 앱 배포 URL을 아래 따옴표 안에 붙여넣으세요.
+        const APPS_SCRIPT_URL = '여기에_배포된_웹앱_URL_붙여넣기';
+
+        function setAuthStatus(text, verified = false) {
+            const badge = document.getElementById("auth-status");
+            badge.textContent = text;
+            badge.className = verified
+                ? "text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 self-start"
+                : "text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 self-start";
+        }
+
+        function setDbMessage(msg, isError = false) {
+            const el = document.getElementById("db-status-msg");
+            el.textContent = msg;
+            el.className = isError ? "text-xs font-semibold text-rose-600" : "text-xs font-semibold text-emerald-700";
+        }
+
+        async function callSheetApi(payload) {
+            if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("여기에_배포된_웹앱_URL_붙여넣기")) {
+                throw new Error("Apps Script 웹 앱 URL이 아직 설정되지 않았습니다.");
+            }
+            const res = await fetch(APPS_SCRIPT_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            });
+            return await res.json();
+        }
+
+        async function loadMySubmission() {
+            const name = document.getElementById("stu-name").value.trim();
+            const studentId = document.getElementById("stu-id").value.trim();
+            const pin = document.getElementById("stu-pin").value.trim();
+
+            setDbMessage("본인 확인 및 이전 장면 조회 중...");
+            try {
+                const result = await callSheetApi({ action: "load", name, studentId, pin });
+                if (!result.ok) {
+                    setAuthStatus("확인 실패", false);
+                    setDbMessage(result.message || "신원 확인에 실패했습니다.", true);
+                    return;
+                }
+                if (typeof result.data.intent === "string") document.getElementById("input-intent").value = result.data.intent;
+                if (typeof result.data.scene === "string") document.getElementById("input-scene").value = result.data.scene;
+                setAuthStatus("본인 확인 완료", true);
+                setDbMessage("저장된 내 장면 계획을 불러왔습니다.");
+                syncSceneToCompare();
+                updateComparison();
+            } catch (err) {
+                setAuthStatus("연결 오류", false);
+                setDbMessage(err.message, true);
+            }
+        }
+
+        async function saveSubmission() {
+            const name = document.getElementById("stu-name").value.trim();
+            const studentId = document.getElementById("stu-id").value.trim();
+            const pin = document.getElementById("stu-pin").value.trim();
+            const intent = document.getElementById("input-intent").value.trim();
+            const scene = document.getElementById("input-scene").value.trim();
+
+            setDbMessage("스프레드시트 DB에 저장 중...");
+            try {
+                const result = await callSheetApi({ action: "save", name, studentId, pin, intent, scene });
+                if (!result.ok) {
+                    setDbMessage(result.message || "저장에 실패했습니다.", true);
+                    return;
+                }
+                setAuthStatus("본인 확인 완료", true);
+                setDbMessage("DB에 저장되었습니다. (개인정보는 화면에 노출되지 않습니다.)");
+            } catch (err) {
+                setDbMessage(err.message, true);
+            }
+        }
+
+        const SAMPLES = {
+            good: {
+                intent: "한쪽에 놀이터 입구가 들어온다.\n연출 의도: 주변을 자세히 보지 않고 지나가는 평범한 일상을 보여 주어, 이후 놀이터의 변화를 알아차리는 순간이 자연스럽게 이어지도록 한다.",
+                scene: "표현 기법: 주인공의 뒷모습과 길을 담은 풀 샷에서 천천히 따라가는 트래킹 샷을 사용한다. 핸드폰을 쥔 손을 짧게 클로즈업한 뒤 다시 걷는 모습으로 연결한다. 푸른색과 회색을 중심으로 밤의 분위기를 표현한다.\n음향: 일정한 발소리와 멀리서 들리는 차 소리를 작게 깐다. 내레이션은 담담한 목소리로 시작한다."
+            },
+            mismatch: {
+                intent: "처음으로 혼자 사는 방에서 느낀 낯설고 차가운 고립감을 관객이 체감하게 하고 싶다.",
+                scene: "표현 기법: 밝고 경쾌한 카페 조명 아래에서 카메라가 빠르게 좌우로 패닝하며 여러 사람들의 웃음소리를 담는다.\n음향: 신나는 업비트 배경음악을 크게 틀어 놓고 밝은 목소리로 시작한다."
+            }
+        };
+
+        const COMPARE_PRESETS = {
+            isolation: {
+                intent: "의도: 홀로 남겨진 적막함과 고립감 전달",
+                scene: "밤이 된 새 자취방. 창밖으로 도시 야경이 보이고 주인공이 침대 끝에 우두커니 혼자 앉아 있다."
+            },
+            warmth: {
+                intent: "의도: 문틈으로 새어드는 온기와 그리움 환기",
+                scene: "어두운 방 안, 닫힌 문틈 아래로 따뜻한 불빛이 스며들고 바깥에서 희미한 생활 소음이 들린다."
+            },
+            tension: {
+                intent: "의도: 하지 못한 말을 건네기 직전의 긴장과 망설임 부각",
+                scene: "식탁 맞은편에 앉은 두 사람. 잔만 만지작거리며 말문을 열지 못하는 짧은 정적이 흐른다."
+            }
+        };
+
+        const SHOT_LABELS = {
+            ECU: "익스트림 클로즈업",
+            CU: "클로즈업(CU)",
+            MS: "미디엄 숏(MS)",
+            FS: "풀 숏(FS)",
+            ELS: "와이드/롱 숏(LS)"
+        };
+
+        const ANGLE_LABELS = {
+            EYE: "아이 레벨(눈높이)",
+            HIGH: "하이 앵글(부감)",
+            LOW: "로우 앵글(앙각)",
+            DUTCH: "더치 앵글(기울임)"
+        };
+
+        const MOVE_LABELS = {
+            FIX: "픽스(고정)",
+            ZOOM: "줌 인 / 달리 인",
+            PAN: "패닝(좌우 이동)",
+            HAND: "핸드헬드(흔들림)"
+        };
+
+        function switchTab(tabNum) {
+            const tab1 = document.getElementById("tab-content-1");
+            const tab2 = document.getElementById("tab-content-2");
+            const btn1 = document.getElementById("tab-btn-1");
+            const btn2 = document.getElementById("tab-btn-2");
+
+            if (tabNum === 1) {
+                tab1.classList.remove("hidden");
+                tab2.classList.add("hidden");
+                btn1.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm cursor-pointer";
+                btn2.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-300 hover:text-white cursor-pointer";
+            } else {
+                tab1.classList.add("hidden");
+                tab2.classList.remove("hidden");
+                btn2.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm cursor-pointer";
+                btn1.className = "px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-300 hover:text-white cursor-pointer";
+                syncSceneToCompare();
+                updateComparison();
+            }
+        }
+
+        function loadSample(type) {
+            const sample = SAMPLES[type];
+            if (!sample) return;
+            document.getElementById("input-intent").value = sample.intent;
+            document.getElementById("input-scene").value = sample.scene;
+            requestFeedback();
+        }
+
+        function clearForm() {
+            document.getElementById("input-intent").value = "";
+            document.getElementById("input-scene").value = "";
+            document.getElementById("feedback-result").classList.add("hidden");
+            document.getElementById("feedback-loading").classList.add("hidden");
+            document.getElementById("feedback-empty").classList.remove("hidden");
+        }
+
+        function requestFeedback() {
+            const intent = document.getElementById("input-intent").value.trim();
+            const scene = document.getElementById("input-scene").value.trim();
+
+            if (!intent || !scene) {
+                alert("① 창작 목적 및 장면 구현 의도와 ② 장면 내용·매체 표현 기법·음향 묘사를 모두 입력해 주세요.");
+                return;
+            }
+
+            document.getElementById("feedback-empty").classList.add("hidden");
+            document.getElementById("feedback-result").classList.add("hidden");
+            document.getElementById("feedback-loading").classList.remove("hidden");
+
+            setTimeout(() => {
+                renderFeedback(intent, scene);
+                document.getElementById("feedback-loading").classList.add("hidden");
+                document.getElementById("feedback-result").classList.remove("hidden");
+            }, 250);
+        }
+
+        function renderFeedback(intent, scene) {
+            const hasTech = /(샷|앵글|클로즈업|풀\s?샷|와이드|트래킹|패닝|틸팅|줌|핸드헬드|고정|조명|색감|슬로우|음향|내레이션|소리)/i.test(scene);
+            const hasSound = /(음향|내레이션|소리|음악|대화|발소리|정적)/i.test(scene);
+            const isCheerfulTech = /(밝고|경쾌|신나|웃음)/i.test(scene);
+            const isSadOrLonelyIntent = /(외로|고립|적막|슬프|그리움|불안|긴장)/i.test(intent);
+
+            let summary = "장면의 정서적 목표를 향해 한 걸음 다가갔습니다. 시청각 기법이 의도를 얼마나 선명하게 받쳐주는지 점검해 보세요.";
+            let strength = "8~10초 분량 안에서 관객이 따라갈 수 있는 중심 정서와 장면을 설정하려 한 점이 좋습니다.";
+            let weakness = "서술된 매체 표현 기법이나 음향이 장면의 정서와 어긋나는 지점이 없는지 한 번 더 따져볼 필요가 있습니다.";
+
+            if (isSadOrLonelyIntent && isCheerfulTech) {
+                summary = "‘외로움·고립감’이라는 의도와 ‘밝고 경쾌한 분위기·신나는 소리’가 충돌하고 있습니다.";
+                strength = "고립감을 다루겠다는 창작 의도 자체는 분명하게 잡혀 있습니다.";
+                weakness = "경쾌한 조명과 빠른 움직임, 신나는 소리는 활기나 들뜸을 만들기 쉽습니다. 고립감을 보여주려 했다면 역설적 대비를 노린 것인지, 아니면 기법 선택이 어긋난 것인지 점검해 보세요.";
+            } else if (hasTech && hasSound) {
+                summary = "장면 묘사 안에 화면 기법과 음향·내레이션 요소가 함께 녹아 있어 연출 구상이 구체적입니다.";
+                strength = "화면의 시각적 정보와 소리(음향·내레이션)를 함께 고려해 8~10초 장면의 흐름을 잡은 점이 돋보입니다.";
+                weakness = "기법 이름을 적는 데 그치지 않고, 그 기법이 정확히 어떤 순간에 관객의 시선이나 감정을 어디로 이끄는지 연결해 보세요.";
+            } else if (!hasTech) {
+                summary = "장면의 분위기는 느껴지지만, 화면과 소리를 어떻게 찍고 들려줄지에 대한 기법 서술이 더 필요합니다.";
+                strength = "인물과 공간의 상황을 직관적으로 떠올릴 수 있게 적어 주었습니다.";
+                weakness = "‘슬프다’나 ‘외롭다’ 같은 감정 설명만으로는 카메라가 무엇을 담아야 할지 정해지지 않습니다. 샷 크기, 시선 이동, 조명 색감, 소리로 옮겨 적어 보세요.";
+            }
+
+            const questions = [
+                "8~10초 동안 관객의 시선이 가장 먼저 머물러야 할 시각적 초점(인물의 손·눈빛, 문틈, 창밖 등)은 무엇인가요?",
+                hasSound
+                    ? "적어 둔 음향이나 내레이션이 화면의 움직임과 겹칠 때 서로를 가리지 않고 보완하나요?"
+                    : "이 장면에 소리가 추가된다면 어떤 소리(또는 의도적인 무음·정적)가 정서를 가장 잘 살릴까요?"
+            ];
+
+            const alternatives = [
+                {
+                    title: "대안 1 · 정서 밀착형(클로즈업 + 절제된 소리)",
+                    desc: "인물의 미세한 표정이나 손끝, 작은 사물에 가까이 다가가 감정의 결을 섬세하게 드러내는 방향입니다.",
+                    shot: "CU",
+                    angle: "EYE",
+                    move: "ZOOM",
+                    scenePatch: "인물의 표정이나 손끝을 클로즈업(CU)으로 가까이 담으며 천천히 줌 인하고, 주변 소음을 줄여 내레이션과 숨소리에 집중시킨다."
+                },
+                {
+                    title: "대안 2 · 공간·관계 강조형(와이드 숏 + 부감/고정)",
+                    desc: "공간 전체와 인물의 위치를 함께 보여 주어 처한 상황이나 거리감을 객관적으로 드러내는 방향입니다.",
+                    shot: "ELS",
+                    angle: "HIGH",
+                    move: "FIX",
+                    scenePatch: "공간 전체가 드러나는 와이드 숏(LS)과 하이 앵글(부감) 고정 화면으로 인물이 놓인 공간의 넓이와 정적을 보여 준다."
+                }
+            ];
+
+            document.getElementById("res-summary").textContent = summary;
+            document.getElementById("res-strength").textContent = strength;
+            document.getElementById("res-weakness").textContent = weakness;
+            document.getElementById("res-questions").innerHTML = questions.map(q => `<li>${q}</li>`).join("");
+            document.getElementById("res-alternatives").innerHTML = alternatives.map((alt, idx) => `
+                <button type="button" onclick="applyAlternative(${idx})" class="text-left p-3.5 rounded-xl border border-slate-200 hover:border-indigo-400 hover:bg-indigo-50/40 transition space-y-1.5 cursor-pointer">
+                    <div class="font-bold text-xs text-indigo-700">${alt.title}</div>
+                    <p class="text-xs text-slate-600 leading-relaxed">${alt.desc}</p>
+                </button>
+            `).join("");
+
+            window.__latestAlternatives = alternatives;
+        }
+
+        function applyAlternative(idx) {
+            const alt = window.__latestAlternatives && window.__latestAlternatives[idx];
+            if (!alt) return;
+            const sceneInput = document.getElementById("input-scene");
+            const current = sceneInput.value.trim();
+            sceneInput.value = current ? `${current}\n\n[선택한 연출 대안] ${alt.scenePatch}` : alt.scenePatch;
+            document.getElementById("comp-b-shot").value = alt.shot;
+            document.getElementById("comp-b-angle").value = alt.angle;
+            document.getElementById("comp-b-move").value = alt.move;
+            updateComparison();
+        }
+
+        function setComparePreset(key) {
+            const preset = COMPARE_PRESETS[key];
+            if (!preset) return;
+            document.getElementById("compare-intent-badge").textContent = preset.intent;
+            document.getElementById("compare-scene-text").textContent = preset.scene;
+            updateComparison();
+        }
+
+        function syncSceneToCompare() {
+            const intent = document.getElementById("input-intent").value.trim();
+            const scene = document.getElementById("input-scene").value.trim();
+            if (intent) document.getElementById("compare-intent-badge").textContent = `의도: ${intent}`;
+            if (scene) document.getElementById("compare-scene-text").textContent = scene.split("\n")[0];
+        }
+
+        function buildViewportMarkup(shot, angle, move) {
+            const scaleMap = { ECU: 1.45, CU: 1.25, MS: 1.0, FS: 0.82, ELS: 0.65 };
+            const angleTransform = {
+                EYE: "rotate(0deg) translateY(0px)",
+                HIGH: "rotate(0deg) translateY(10px)",
+                LOW: "rotate(0deg) translateY(-10px)",
+                DUTCH: "rotate(-7deg) translateY(0px)"
+            };
+            const moveClass = {
+                FIX: "",
+                ZOOM: "anim-zoom",
+                PAN: "anim-pan",
+                HAND: "anim-handheld"
+            };
+            const scale = scaleMap[shot] || 1.0;
+            const transform = `${angleTransform[angle] || ""} scale(${scale})`;
+
+            return `
+                <div class="${moveClass[move] || ""} transition-transform duration-500 flex flex-col items-center justify-center w-full h-full bg-gradient-to-b from-slate-800 via-slate-900 to-slate-950" style="transform: ${transform};">
+                    <svg viewBox="0 0 240 120" class="w-48 h-24 text-indigo-300/90" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="28" y="20" width="52" height="36" rx="4" class="stroke-slate-500" />
+                        <circle cx="135" cy="42" r="11" class="fill-indigo-400/20 stroke-indigo-300" />
+                        <path d="M116 96 C116 70, 154 70, 154 96" class="fill-indigo-500/20 stroke-indigo-300" />
+                        <line x1="20" y1="98" x2="220" y2="98" class="stroke-slate-600" />
+                    </svg>
+                    <span class="text-[11px] font-medium text-indigo-200/80 mt-1">${SHOT_LABELS[shot]} · ${ANGLE_LABELS[angle]}</span>
+                </div>
+            `;
+        }
+
+        function buildEffectText(shot, angle, move) {
+            const shotEffects = {
+                ECU: "작은 디테일이나 감정의 미세한 떨림을 극대화해 긴장감과 몰입을 높입니다.",
+                CU: "인물의 표정과 감정에 시선을 집중시켜 공감이나 내적 갈등을 선명하게 보여 줍니다.",
+                MS: "인물의 상체와 주변 공간을 함께 담아 대화나 행동의 맥락을 균형 있게 전달합니다.",
+                FS: "전신과 주변 환경을 함께 보여 주어 인물이 놓인 상황과 움직임을 자연스럽게 드러냅니다.",
+                ELS: "공간 전체와 인물의 크기를 대비시켜 고립감, 탁 트인 분위기, 혹은 배경의 의미를 강조합니다."
+            };
+            const angleEffects = {
+                EYE: "관객과 인물이 대등한 눈높이에 서서 담백하고 현실적인 거리감을 만듭니다.",
+                HIGH: "위에서 내려다보는 시선으로 인물이 작아 보이거나 눌린 듯한 느낌을 줄 수 있습니다.",
+                LOW: "아래에서 올려다보는 시선으로 인물의 존재감이나 압박감·위엄을 부각할 수 있습니다.",
+                DUTCH: "기울어진 수평선이 불안정함, 긴장, 심리적 흔들림을 시각적으로 암시합니다."
+            };
+            const moveEffects = {
+                FIX: "화면이 흔들리지 않아 정적·관찰·여운을 남기기에 알맞습니다.",
+                ZOOM: "시선이 중심으로 모이면서 감정이 깊어지거나 특정 대상에 주목하게 합니다.",
+                PAN: "시선이 옆으로 이어지며 공간의 넓이나 인접한 대상·상황을 연결해 줍니다.",
+                HAND: "실시간으로 숨 쉬는 듯한 생동감과 함께 흔들림·불안·현장감을 더합니다."
+            };
+            return `${shotEffects[shot] || ""} ${angleEffects[angle] || ""} ${moveEffects[move] || ""}`.trim();
+        }
+
+        function updateComparison() {
+            const aShot = document.getElementById("comp-a-shot").value;
+            const aAngle = document.getElementById("comp-a-angle").value;
+            const aMove = document.getElementById("comp-a-move").value;
+
+            const bShot = document.getElementById("comp-b-shot").value;
+            const bAngle = document.getElementById("comp-b-angle").value;
+            const bMove = document.getElementById("comp-b-move").value;
+
+            document.getElementById("label-a-summary").textContent = `${SHOT_LABELS[aShot]} · ${ANGLE_LABELS[aAngle]} · ${MOVE_LABELS[aMove]}`;
+            document.getElementById("label-b-summary").textContent = `${SHOT_LABELS[bShot]} · ${ANGLE_LABELS[bAngle]} · ${MOVE_LABELS[bMove]}`;
+
+            document.getElementById("badge-a-angle").textContent = aAngle;
+            document.getElementById("badge-b-angle").textContent = bAngle;
+
+            document.getElementById("viewport-a").innerHTML = buildViewportMarkup(aShot, aAngle, aMove);
+            document.getElementById("viewport-b").innerHTML = buildViewportMarkup(bShot, bAngle, bMove);
+
+            document.getElementById("effect-a-desc").textContent = buildEffectText(aShot, aAngle, aMove);
+            document.getElementById("effect-b-desc").textContent = buildEffectText(bShot, bAngle, bMove);
+        }
+
+        function selectFinalChoice(plan) {
+            const shot = document.getElementById(plan === "A" ? "comp-a-shot" : "comp-b-shot").value;
+            const angle = document.getElementById(plan === "A" ? "comp-a-angle" : "comp-b-angle").value;
+            const move = document.getElementById(plan === "A" ? "comp-a-move" : "comp-b-move").value;
+
+            const summary = `${SHOT_LABELS[shot]}, ${ANGLE_LABELS[angle]}, ${MOVE_LABELS[move]}`;
+            const sceneInput = document.getElementById("input-scene");
+            const current = sceneInput.value.trim();
+            const line = `[확정 기법 · 연출안 ${plan}] ${summary}`;
+
+            if (!current.includes(line)) {
+                sceneInput.value = current ? `${current}\n${line}` : line;
+            }
+
+            const banner = document.getElementById("choice-banner");
+            document.getElementById("choice-banner-text").textContent = `연출안 ${plan}(${summary})이 장면 계획서에 반영되었습니다.`;
+            banner.classList.remove("hidden");
+        }
+
+        updateComparison();
+    </script>
+</body>
+</html>
