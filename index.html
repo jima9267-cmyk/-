@@ -1,113 +1,146 @@
-const SHEET_ID = '1G7V95ovfAJ_WJauhv_zuaNB4nejg194qTyZSOAroa4Y';
-const SHEET_NAME = 'submissions';
-
-function sha256Hex(text) {
-  const rawHash = Utilities.computeDigest(
-    Utilities.DigestAlgorithm.SHA_256,
-    text,
-    Utilities.Charset.UTF_8
-  );
-  return rawHash
-    .map(byte => {
-      const v = (byte + 256) % 256;
-      return v.toString(16).padStart(2, '0');
-    })
-    .join('');
-}
-
-function getSheet() {
-  const ss = SpreadsheetApp.openById(SHEET_ID);
-  let sheet = ss.getSheetByName(SHEET_NAME);
-  if (!sheet) {
-    sheet = ss.insertSheet(SHEET_NAME);
-    sheet.appendRow(['timestamp', 'student_key', 'name', 'student_id', 'pin_hash', 'intent', 'scene']);
-  }
-  return sheet;
-}
-
-function doPost(e) {
-  try {
-    const body = JSON.parse(e.postData.contents || '{}');
-    const action = body.action || 'save';
-    const name = String(body.name || '').trim();
-    const studentId = String(body.studentId || '').trim();
-    const pin = String(body.pin || '').trim();
-
-    if (!studentId || !pin || pin.length < 4) {
-      return jsonResponse({ ok: false, message: '학번과 4자리 이상 확인 번호(PIN)를 입력해 주세요.' });
-    }
-
-    const studentKey = sha256Hex(`sid:${studentId}`);
-    const pinHash = sha256Hex(`${studentId}:${pin}`);
-    const sheet = getSheet();
-    const lastRow = sheet.getLastRow();
-
-    if (action === 'load') {
-      if (lastRow < 2) {
-        return jsonResponse({ ok: false, message: '저장된 기록을 찾을 수 없습니다.' });
-      }
-      const rows = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
-      // 가장 최근 제출 건부터 역순 탐색
-      for (let i = rows.length - 1; i >= 0; i--) {
-        const [ts, rowKey, rowName, rowSid, rowPinHash, intent, scene] = rows[i];
-        const idMatch = String(rowSid).trim() === studentId || String(rowKey) === studentKey;
-        const nameMatch = !name || String(rowName).trim() === name;
-        if (idMatch && nameMatch) {
-          if (String(rowPinHash) !== pinHash) {
-            return jsonResponse({ ok: false, message: '확인 번호(PIN)가 일치하지 않습니다.' });
-          }
-          return jsonResponse({
-            ok: true,
-            message: '본인 확인이 완료되었습니다.',
-            data: {
-              updatedAt: ts,
-              intent: String(intent || ''),
-              scene: String(scene || '')
-            }
-          });
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문학과 영상 | AI 연출 피드백 & 촬영 기법 비교 스튜디오</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
         }
-      }
-      return jsonResponse({ ok: false, message: '일치하는 제출 기록이 없습니다.' });
-    }
-
-    // action === 'save'
-    if (!name) {
-      return jsonResponse({ ok: false, message: '이름을 입력해 주세요.' });
-    }
-    const intent = String(body.intent || '').trim();
-    const scene = String(body.scene || '').trim();
-    if (!intent || !scene) {
-      return jsonResponse({ ok: false, message: '창작 의도와 장면 묘사를 모두 입력해 주세요.' });
-    }
-
-    // 기존 동일 학번의 PIN이 있다면 일치 여부 확인
-    if (lastRow >= 2) {
-      const rows = sheet.getRange(2, 1, lastRow - 1, 7).getValues();
-      for (let i = rows.length - 1; i >= 0; i--) {
-        const [, , , rowSid, rowPinHash] = rows[i];
-        if (String(rowSid).trim() === studentId && String(rowPinHash) && String(rowPinHash) !== pinHash) {
-          return jsonResponse({ ok: false, message: '이미 등록된 학번의 확인 번호(PIN)와 다릅니다.' });
+        .viewfinder-grid {
+            background-image:
+                linear-gradient(to right, rgba(255,255,255,0.15) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.15) 1px, transparent 1px);
+            background-size: 33.33% 33.33%;
         }
-      }
-    }
+        @keyframes pulse-rec {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+        .rec-dot {
+            animation: pulse-rec 1.5s infinite;
+        }
+        @keyframes move-pan {
+            0%, 100% { transform: translateX(-8%); }
+            50% { transform: translateX(8%); }
+        }
+        @keyframes move-zoom-in {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.18); }
+        }
+        @keyframes move-handheld {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(-2px, 3px) rotate(-0.8deg); }
+            50% { transform: translate(3px, -2px) rotate(0.7deg); }
+            75% { transform: translate(-2px, -2px) rotate(-0.5deg); }
+        }
+        .anim-pan { animation: move-pan 5s ease-in-out infinite; }
+        .anim-zoom { animation: move-zoom-in 5s ease-in-out infinite; }
+        .anim-handheld { animation: move-handheld 1.2s ease-in-out infinite; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
 
-    const now = new Date();
-    sheet.appendRow([now, studentKey, name, studentId, pinHash, intent, scene]);
+    <!-- 상단 헤더 -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="bg-indigo-500 p-2 rounded-xl shadow-inner">
+                    <i data-lucide="clapperboard" class="w-6 h-6 text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold tracking-wider uppercase bg-indigo-500/30 text-indigo-200 px-2 py-0.5 rounded-md border border-indigo-400/30">고2 문학과 영상</span>
+                        <span class="text-xs text-slate-400">일상이 작품이 되는 시간</span>
+                    </div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight mt-0.5">내 삶의 한 장면 · 연출 피드백 스튜디오</h1>
+                </div>
+            </div>
 
-    return jsonResponse({
-      ok: true,
-      message: '데이터베이스에 안전하게 저장되었습니다.',
-      data: {
-        updatedAt: now.toISOString()
-      }
-    });
-  } catch (err) {
-    return jsonResponse({ ok: false, message: '서버 처리 중 오류가 발생했습니다: ' + err.message });
-  }
-}
+            <!-- 탭 전환 네비게이션 -->
+            <nav class="flex bg-slate-800 p-1 rounded-xl border border-slate-700 self-start sm:self-auto">
+                <button id="tab-btn-1" type="button" onclick="switchTab(1)" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-sm cursor-pointer">
+                    <i data-lucide="sparkles" class="w-4 h-4"></i>
+                    <span>1. 연출 계획 피드백</span>
+                </button>
+                <button id="tab-btn-2" type="button" onclick="switchTab(2)" class="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all text-slate-300 hover:text-white cursor-pointer">
+                    <i data-lucide="sliders" class="w-4 h-4"></i>
+                    <span>2. 촬영 기법 비교 체험</span>
+                </button>
+            </nav>
+        </div>
+    </header>
 
-function jsonResponse(obj) {
-  return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
-}
+    <!-- 메인 컨텐츠 영역 -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-6 sm:py-8 space-y-6">
+
+        <!-- 학생 신원확인 및 DB 저장/불러오기 바 (개인정보 비노출) -->
+        <section class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                        <i data-lucide="shield-check" class="w-4 h-4 text-indigo-600"></i>
+                        <span>학생 신원확인 · DB 저장 및 내 장면 불러오기</span>
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        입력한 정보는 저장 및 본인 확인에만 사용되며, 웹앱 화면에 다른 학생 정보나 명단은 표시되지 않습니다.
+                    </p>
+                </div>
+                <span id="auth-status" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 self-start">
+                    미확인 상태
+                </span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                <div>
+                    <label for="stu-name" class="block text-[11px] font-semibold text-slate-600 mb-1">이름 (저장 시 필수)</label>
+                    <input id="stu-name" type="text" autocomplete="off" placeholder="예: 홍길동" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div>
+                    <label for="stu-id" class="block text-[11px] font-semibold text-slate-600 mb-1">학번 *</label>
+                    <input id="stu-id" type="text" autocomplete="off" placeholder="예: 20415" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div>
+                    <label for="stu-pin" class="block text-[11px] font-semibold text-slate-600 mb-1">확인번호 (4자리 이상) *</label>
+                    <input id="stu-pin" type="password" autocomplete="new-password" placeholder="예: 1234" class="w-full rounded-xl border border-slate-300 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+                <p id="db-status-msg" class="text-xs font-medium text-slate-500"></p>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" onclick="loadMySubmission()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition cursor-pointer">
+                        본인 확인 후 내 장면 불러오기
+                    </button>
+                    <button type="button" onclick="saveSubmission()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer">
+                        스프레드시트 DB에 저장
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: 장면 연출 계획 입력 및 피드백 진단                 -->
+        <!-- ========================================================= -->
+        <section id="tab-content-1" class="space-y-6">
+            <!-- 안내 배너 + 예시 버튼 -->
+            <div class="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="flex items-start gap-3">
+                    <div class="bg-amber-100 text-amber-700 p-2.5 rounded-xl shrink-0 mt-0.5">
+                        <i data-lucide="lightbulb" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-slate-800 text-base">작성한 장면 계획서(8~10초 분량)를 점검해 보세요!</h2>
+                        <p class="text-sm text-slate-600 mt-0.5 leading-relaxed">
+                            여러분이 서술한 <strong>장면 내용과 매체 표현 기법·음향</strong>이 <strong>창작 의도</strong>와 잘 맞물리는지 짚어주고, 선택할 수 있는 연출 대안을 제안합니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap gap-2 shrink-0 w-full md:w-auto justify-end">
+                    <button type="button" onclick="
